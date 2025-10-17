@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Crime - CyberGuard Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text) !important;
+        }
+        
+        .navbar-brand i {
+            color: var(--accent);
+        }
+        
+        .nav-link {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--text) !important;
+        }
+        
+        .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none;
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-outline-light {
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border-color: var(--text);
+        }
+        
+        /* Page Sections */
+        .page-section {
+            min-height: 100vh;
+            padding: 120px 0 80px;
+        }
+        
+        .bg-secondary {
+            background: var(--secondary) !important;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: var(--secondary);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header i {
+            color: var(--accent);
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--primary);
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+        
+        .user-message {
+            justify-content: flex-end;
+        }
+        
+        .bot-message {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .user-bubble {
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-bubble {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            background: var(--secondary);
+        }
+        
+        .input-group {
+            background: var(--primary);
+            border-radius: 30px;
+            padding: 5px;
+            border: 1px solid var(--border);
+        }
+        
+        .form-control {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            padding: 10px 20px;
+        }
+        
+        .form-control:focus {
+            box-shadow: none;
+            background: transparent;
+            color: var(--text);
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        /* Complaint Categories */
+        .complaint-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .complaint-category {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .complaint-category:hover, .complaint-category.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--secondary);
+            padding: 60px 0 30px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+        
+        .social-icons a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+        
+        .social-icons a:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+            }
+            
+            .page-section {
+                padding: 100px 0 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="home page.html", href="awareness page.html", href="lgal info page.html", href="loginpage.html", href="report page.html"> 
+            <i class="fas fa-shield-alt me-2"></i>CyberGuard Assistant
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home page.html">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="loginpage.html">Login/Signup</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="report page.html">Report Crime</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="awareness page.html">Awareness</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lgal info page.html">Legal Info</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+   
+    </nav>
+
+    <!-- Report Crime Page Content -->
+    <section class="page-section bg-secondary">
+        <div class="container">
+            <h2 class="section-title">Report a Cybercrime</h2>
+            
+            <!-- Guest Mode Banner -->
+            <div class="alert alert-dark d-flex align-items-center mb-4" role="alert">
+                <i class="fas fa-user-clock me-2"></i>
+                <div>
+                    <span>You are using Guest Mode. Your session will be temporary.</span>
+                </div>
+                <a href="loginpage.html" class="btn btn-sm btn-primary ms-auto">Login</a>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <i class="fas fa-robot"></i>CyberGuard Assistant
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message bot-message">
+                                <div class="message-bubble bot-bubble">
+                                    Hello! I'm CyberGuard Assistant. I'm here to help you report cybercrimes anonymously. How can I assist you today?
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageInput" placeholder="Type your message here...">
+                                <button class="btn btn-primary" id="sendMessage">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Complaint Categories -->
+            <div class="row mt-4">
+                <div class="col-lg-8 mx-auto">
+                    <h4 class="text-center mb-3">Common Cybercrime Categories</h4>
+                    <div class="complaint-categories">
+                        <div class="complaint-category" data-category="fraud">Online Fraud</div>
+                        <div class="complaint-category" data-category="harassment">Harassment</div>
+                        <div class="complaint-category" data-category="hacking">Hacking</div>
+                        <div class="complaint-category" data-category="blackmail">Blackmail</div>
+                        <div class="complaint-category" data-category="identity-theft">Identity Theft</div>
+                        <div class="complaint-category" data-category="cyberbullying">Cyberbullying</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-shield-alt me-2"></i>CyberGuard Assistant</h5>
+                    <p class="mt-3">A bilingual AI-powered platform to help citizens report cybercrimes anonymously and access legal information.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Quick Links</h5>
+                    <div class="footer-links mt-3">
+                         <a href="home page.html">Home</a>
+                        <a href="loginpage.html">Login/Signup</a>
+                        <a href="report page.html">Report Crime</a>
+                        <a href="awareness page.html">Awareness</a>
+                        <a href="lgal info page.html">Legal Info</a>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Contact</h5>
+                    <div class="footer-links mt-3">
+                        <p><i class="fas fa-envelope me-2"></i> support@cyberguard.pk</p>
+                        <p><i class="fas fa-phone me-2"></i> +92-21-1234567</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5>Follow Us</h5>
+                    <div class="social-icons mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center py-3">
+                <p class="mb-0">&copy; 2025 CyberGuard Assistant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap & Custom JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Highlight current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Chat functionality
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendMessageBtn = document.getElementById('sendMessage');
+            const complaintCategories = document.querySelectorAll('.complaint-category');
+
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message === '') return;
+                
+                addMessage(message, 'user');
+                messageInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const responses = [
+                        "I understand. Could you provide more details about when this happened?",
+                        "Thank you for sharing that. Can you tell me if you have any evidence like screenshots or messages?",
+                        "I see. Have you reported this to anyone else yet?",
+                        "That sounds difficult. Let me guide you through the next steps.",
+                        "Based on what you've described, this falls under Section 21 of PECA 2016. Would you like to know more about the legal aspects?"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'bot');
+                }, 1000);
+            }
+
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = `message-bubble ${sender}-bubble`;
+                bubbleDiv.textContent = text;
+                
+                messageDiv.appendChild(bubbleDiv);
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            sendMessageBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Complaint categories
+            complaintCategories.forEach(category => {
+                category.addEventListener('click', () => {
+                    // Remove active class from all categories
+                    complaintCategories.forEach(c => c.classList.remove('active'));
+                    // Add active class to clicked category
+                    category.classList.add('active');
+                    
+                    // Add message about selected category
+                    const categoryName = category.textContent;
+                    addMessage(`I want to report a case of ${categoryName.toLowerCase()}.`, 'user');
+                    
+                    // Simulate bot response
+                    setTimeout(() => {
+                        addMessage(`I understand you're reporting a ${categoryName.toLowerCase()} case. Could you please provide more details about what happened?`, 'bot');
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
